@@ -1,53 +1,34 @@
-// Espera que el usuario haga clic en el botón para activar la cámara
-document.getElementById("startCameraButton").addEventListener("click", function() {
-    // Verifica si el navegador tiene soporte para acceder a la cámara
+// Obtener la instancia de ZXing
+const codeReader = new ZXing.BrowserMultiFormatReader();
+
+// Escuchar el evento de clic para activar la cámara
+document.getElementById('startCameraButton').addEventListener('click', function() {
+    // Verifica si el navegador soporta la cámara
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices.getUserMedia({
-            video: { facingMode: "environment" } // Usar la cámara trasera
-        }).then(function(stream) {
-            // Si la cámara se accede correctamente, mostrarla
-            const video = document.createElement("video");
-            video.srcObject = stream;
-            video.setAttribute("autoplay", true);
-            document.getElementById("scanner-container").appendChild(video);
+        // Acceder a la cámara trasera
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+            .then(function(stream) {
+                // Mostrar el video en la página
+                const video = document.createElement('video');
+                video.srcObject = stream;
+                video.setAttribute('autoplay', true);
+                document.getElementById('scanner-container').appendChild(video);
 
-            // Iniciar Quagga para escanear el código de barras
-            Quagga.init({
-                inputStream: {
-                    type: "LiveStream",
-                    constraints: {
-                        facingMode: "environment" // Activar cámara trasera
-                    },
-                    area: { 
-                        top: "0%",    // Top del área de escaneo
-                        left: "0%",   // Left del área de escaneo
-                        width: "100%",  // Ancho completo
-                        height: "100%"  // Altura completa
+                // Iniciar el escaneo
+                codeReader.decodeFromVideoDevice(null, video, (result, error) => {
+                    if (result) {
+                        console.log("Código escaneado:", result.text);
+                        fetchProductData(result.text); // Buscar los datos del producto
                     }
-                },
-                decoder: {
-                    readers: ["ean_reader", "ean_8_reader", "upc_reader"]  // Decodificadores de código de barras
-                }
-            }, function(err) {
-                if (err) {
-                    console.log("Error al inicializar Quagga:", err);
-                    return;
-                }
-                Quagga.start();  // Iniciar escaneo
+                    if (error) {
+                        console.error("Error de escaneo:", error);
+                    }
+                });
+            })
+            .catch(function(error) {
+                console.log("Error al acceder a la cámara:", error);
+                alert("No se pudo acceder a la cámara.");
             });
-
-            // Detectar el código de barras cuando se escanee
-            Quagga.onDetected(function(result) {
-                const barcode = result.codeResult.code;
-                console.log("Código escaneado:", barcode);
-
-                // Llamar a la función para obtener datos del producto
-                fetchProductData(barcode);
-            });
-        }).catch(function(err) {
-            console.log("Error al acceder a la cámara:", err);
-            alert("No se pudo acceder a la cámara.");
-        });
     } else {
         alert("El navegador no soporta el acceso a la cámara.");
     }
