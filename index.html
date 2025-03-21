@@ -3,38 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tomar Foto</title>
-    <style>
-        #video {
-            width: 320px; /* Hacemos el video más pequeño */
-            height: 240px; /* Ajustamos la altura proporcionalmente */
-            border: 2px solid black; /* Opcional, solo para ver el borde del video */
-        }
-    </style>
+    <title>Activar Cámara Trasera</title>
+    <script src="script.js" defer></script>
 </head>
 <body>
-    <header>
-        <h1>Tomar Foto</h1>
-    </header>
 
-    <main>
-        <!-- Botón para activar la cámara -->
-        <button id="startCameraButton">Activar cámara</button>
+    <!-- Botón para activar la cámara -->
+    <button id="startCameraButton">Activar Cámara</button>
 
-        <!-- Área para mostrar la vista de la cámara -->
-        <div id="cameraContainer" style="width: 100%; height: 400px; display: none;">
-            <video id="video" autoplay playsinline></video>
-        </div>
+    <!-- Contenedor donde se muestra el video -->
+    <div id="cameraContainer" style="display: none;">
+        <video id="video" width="100%" height="auto" autoplay></video>
+    </div>
 
-        <!-- Botón para tomar la foto -->
-        <button id="takePhotoButton" style="display: none;">Tomar Foto</button>
-
-        <!-- Contenedor para mostrar la foto tomada -->
-        <canvas id="photoCanvas" style="display: none;"></canvas>
-        <img id="photo" style="display: none;" />
-    </main>
-
-    <script src="script.js"></script>
 </body>
 </html>
+
 
