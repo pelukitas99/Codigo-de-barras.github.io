@@ -51,15 +51,8 @@ takePhotoButton.addEventListener('click', function() {
     // Convertir la imagen del canvas a una URL de imagen
     const photoDataUrl = canvas.toDataURL('image/png');
     
-    // Mostrar la imagen tomada
+    // Mostrar la imagen tomada sin ocultar la cámara
     photoElement.src = photoDataUrl;
     photoContainer.style.display = 'block'; // Hacer visible la foto
-
-    // Detener el flujo de la cámara (desactivar la cámara)
-    videoStream.getTracks().forEach(track => track.stop());
-
-    // Ocultar el video y el botón de tomar foto
-    cameraContainer.style.display = 'none';
-    takePhotoButton.style.display = 'none';
 });
 
