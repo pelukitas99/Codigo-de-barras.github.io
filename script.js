@@ -1,90 +1,75 @@
-// URL del Google Sheets en formato CSV
-const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSKHNIwPCopFbz6NDE-S2FM6U8NwtY696GXiqc4jv_ibp2eji-AHbXW_uIZJmGL9F5ErxCYqrZnoKgI/pub?output=csv";
-
-// Variables de ZXing
-let selectedWarehouse = 'A';
-let videoElement = document.getElementById('video');
-let scanner;
-
-// Iniciar el escáner
-document.getElementById('startScanner').addEventListener('click', () => {
-    document.getElementById('scannerContainer').style.display = 'block';
-    startScanner();
+// Inicializa el escáner de códigos de barras
+Quagga.init({
+    inputStream: {
+        type: "LiveStream",
+        constraints: {
+            facingMode: "environment"  // Activamos la cámara trasera
+        },
+        area: { 
+            top: "0%",    // Top del área de escaneo
+            left: "0%",   // Left del área de escaneo
+            width: "100%",  // Ancho completo
+            height: "100%"  // Altura completa
+        }
+    },
+    decoder: {
+        readers: ["ean_reader", "ean_8_reader", "upc_reader"]  // Definir los tipos de códigos de barras a leer
+    }
+}, function(err) {
+    if (err) {
+        console.log("Error al inicializar Quagga:", err);
+        return;
+    }
+    Quagga.start();
 });
 
-// Cambiar almacén
-document.getElementById('warehouseSelector').addEventListener('change', (e) => {
-    selectedWarehouse = e.target.value;
-    showProductsForWarehouse(selectedWarehouse);
+// Función que se llama cada vez que se detecta un código de barras
+Quagga.onDetected(function(result) {
+    const barcode = result.codeResult.code;
+    console.log("Código escaneado:", barcode);
+
+    // Llamamos a una función para obtener los datos de ese código
+    fetchProductData(barcode);
 });
 
-// Configurar ZXing para escaneo
-function startScanner() {
-    scanner = new ZXing.BrowserMultiFormatReader();
-    scanner.decodeOnceFromVideoDevice(undefined, 'video').then(result => {
-        console.log(result);
-        const productCode = result.getText();
-        fetchAndDisplayProductDetails(productCode);
-    }).catch(err => {
-        console.error("Error al escanear:", err);
+// Función que consulta los datos del producto según el código
+function fetchProductData(barcode) {
+    fetch("https://tu-enlace-de-google-sheets.csv")  // Reemplaza con el enlace correcto de tu Google Sheets en CSV
+        .then(response => response.text())
+        .then(data => {
+            const products = csvToArray(data);  // Convertir CSV a array
+            const product = products.find(p => p['Escanear código de barras'] === barcode);
+
+            if (product) {
+                displayProductInfo(product);  // Mostrar los resultados en la interfaz
+            } else {
+                alert("Producto no encontrado");
+            }
+        })
+        .catch(error => console.error("Error al obtener los datos:", error));
+}
+
+// Función para convertir el CSV en un array de objetos
+function csvToArray(str) {
+    const rows = str.split("\n");
+    const headers = rows[0].split(",");
+    return rows.slice(1).map(row => {
+        const values = row.split(",");
+        let obj = {};
+        headers.forEach((header, i) => {
+            obj[header.trim()] = values[i].trim();
+        });
+        return obj;
     });
 }
 
-// Función para obtener y mostrar productos del almacén seleccionado
-function showProductsForWarehouse(warehouse) {
-    fetch(csvUrl)
-        .then(response => response.text())
-        .then(data => {
-            const rows = data.split("\n");
-            const products = rows.map(row => row.split(","));
-            const productList = document.getElementById("productList");
-            productList.innerHTML = '';
-
-            products.forEach(product => {
-                const almacén = product[6]?.trim().toLowerCase();
-                if (almacén === warehouse.toLowerCase() || almacén === `almacén ${warehouse.toLowerCase()}`) {
-                    const productElement = document.createElement("div");
-                    productElement.classList.add("product");
-                    productElement.innerHTML = `
-                        <strong>Nombre:</strong> ${product[3]} <br>
-                        <strong>Unidades:</strong> ${product[4]} <br>
-                        <strong>Descripción:</strong> ${product[5]} <br>
-                    `;
-                    productList.appendChild(productElement);
-                }
-            });
-        }).catch(error => console.error("Error al cargar los productos:", error));
-}
-
-// Función para buscar el producto por código de barras
-function fetchAndDisplayProductDetails(productCode) {
-    fetch(csvUrl)
-        .then(response => response.text())
-        .then(data => {
-            const rows = data.split("\n");
-            const products = rows.map(row => row.split(","));
-            const productList = document.getElementById("productList");
-
-            let foundProduct = false;
-            products.forEach(product => {
-                if (product[0].trim() === productCode) {
-                    foundProduct = true;
-                    const productElement = document.createElement("div");
-                    productElement.classList.add("product");
-                    productElement.innerHTML = `
-                        <strong>Nombre:</strong> ${product[3]} <br>
-                        <strong>Unidades:</strong> ${product[4]} <br>
-                        <strong>Descripción:</strong> ${product[5]} <br>
-                    `;
-                    productList.innerHTML = ''; // Limpiar la lista antes de mostrar el producto escaneado
-                    productList.appendChild(productElement);
-                }
-            });
-
-            if (!foundProduct) {
-                alert("Producto no encontrado.");
-            }
-        }).catch(error => console.error("Error al cargar los productos:", error));
+// Función para mostrar los datos del producto en la interfaz
+function displayProductInfo(product) {
+    document.getElementById('productCode').textContent = product['Escanear código de barras'];
+    document.getElementById('productName').textContent = product['Nombre del producto'];
+    document.getElementById('productUnits').textContent = product['Unidades'];
+    document.getElementById('productDescription').textContent = product['Descripción del producto'];
+    document.getElementById('productWarehouse').textContent = product['Almacén del producto'];
 }
 
 // Iniciar con el almacén A
