@@ -9,19 +9,21 @@ const photo = document.getElementById('photo');
 // Escuchar el evento de clic para activar la cámara
 startCameraButton.addEventListener('click', function() {
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        // Solicitar acceso a la cámara
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then(function(stream) {
-                // Mostrar el video en el contenedor
-                videoElement.srcObject = stream;
-                cameraContainer.style.display = 'block';
-                takePhotoButton.style.display = 'block'; // Mostrar el botón para tomar foto
-                startCameraButton.style.display = 'none'; // Ocultar el botón de activar cámara
-            })
-            .catch(function(error) {
-                console.log("Error al acceder a la cámara:", error);
-                alert("No se pudo acceder a la cámara.");
-            });
+        // Solicitar acceso a la cámara trasera
+        navigator.mediaDevices.getUserMedia({ 
+            video: { facingMode: "environment" } // Cámara trasera
+        })
+        .then(function(stream) {
+            // Mostrar el video en el contenedor
+            videoElement.srcObject = stream;
+            cameraContainer.style.display = 'block';
+            takePhotoButton.style.display = 'block'; // Mostrar el botón para tomar foto
+            startCameraButton.style.display = 'none'; // Ocultar el botón de activar cámara
+        })
+        .catch(function(error) {
+            console.log("Error al acceder a la cámara:", error);
+            alert("No se pudo acceder a la cámara.");
+        });
     } else {
         alert("El navegador no soporta el acceso a la cámara.");
     }
