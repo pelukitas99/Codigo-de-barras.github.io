@@ -9,9 +9,9 @@ const photo = document.getElementById('photo');
 // Escuchar el evento de clic para activar la cámara
 startCameraButton.addEventListener('click', function() {
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        // Solicitar acceso a la cámara trasera
+        // Solicitar acceso solo a la cámara trasera
         navigator.mediaDevices.getUserMedia({ 
-            video: { facingMode: "environment" } // Cámara trasera
+            video: { facingMode: { exact: "environment" } } // Solo cámara trasera
         })
         .then(function(stream) {
             // Mostrar el video en el contenedor
