@@ -14,7 +14,6 @@ Quagga.init({
     },
     decoder: {
         readers: ["ean_reader", "ean_8_reader", "upc_reader"]  // Definir los tipos de códigos de barras a leer
-    }
 }, function(err) {
     if (err) {
         console.log("Error al inicializar Quagga:", err);
@@ -34,7 +33,7 @@ Quagga.onDetected(function(result) {
 
 // Función que consulta los datos del producto según el código
 function fetchProductData(barcode) {
-    fetch("https://tu-enlace-de-google-sheets.csv")  // Reemplaza con el enlace correcto de tu Google Sheets en CSV
+    fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSKHNIwPCopFbz6NDE-S2FM6U8NwtY696GXiqc4jv_ibp2eji-AHbXW_uIZJmGL9F5ErxCYqrZnoKgI/pub?output=csv")  // Enlace correcto al archivo CSV de Google Sheets
         .then(response => response.text())
         .then(data => {
             const products = csvToArray(data);  // Convertir CSV a array
@@ -71,7 +70,3 @@ function displayProductInfo(product) {
     document.getElementById('productDescription').textContent = product['Descripción del producto'];
     document.getElementById('productWarehouse').textContent = product['Almacén del producto'];
 }
-
-// Iniciar con el almacén A
-showProductsForWarehouse('A');
-
