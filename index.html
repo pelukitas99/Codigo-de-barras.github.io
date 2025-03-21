@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escaneo de Productos</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Escanear Producto</h1>
+        <input type="file" id="barcodeInput" accept="image/*" capture="environment">
+        <div id="productInfo">
+            <h2>Producto</h2>
+            <p id="productName"></p>
+            <p id="productUnits"></p>
+            <p id="productDescription"></p>
+            <p id="productLocation"></p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
