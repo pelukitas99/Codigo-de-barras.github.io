@@ -1,46 +1,92 @@
-document.getElementById('barcodeInput').addEventListener('change', handleBarcodeScan);
+// URL del Google Sheets en formato CSV
+const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSKHNIwPCopFbz6NDE-S2FM6U8NwtY696GXiqc4jv_ibp2eji-AHbXW_uIZJmGL9F5ErxCYqrZnoKgI/pub?output=csv";
 
-function handleBarcodeScan(event) {
-    const barcode = event.target.files[0]; // Obtenemos la imagen del código de barras
+// Variables de ZXing
+let selectedWarehouse = 'A';
+let videoElement = document.getElementById('video');
+let scanner;
 
-    if (barcode) {
-        // Aquí agregaremos el código para leer el código de barras y buscar el producto
-        scanBarcode(barcode);
-    }
+// Iniciar el escáner
+document.getElementById('startScanner').addEventListener('click', () => {
+    document.getElementById('scannerContainer').style.display = 'block';
+    startScanner();
+});
+
+// Cambiar almacén
+document.getElementById('warehouseSelector').addEventListener('change', (e) => {
+    selectedWarehouse = e.target.value;
+    showProductsForWarehouse(selectedWarehouse);
+});
+
+// Configurar ZXing para escaneo
+function startScanner() {
+    scanner = new ZXing.BrowserMultiFormatReader();
+    scanner.decodeOnceFromVideoDevice(undefined, 'video').then(result => {
+        console.log(result);
+        const productCode = result.getText();
+        fetchAndDisplayProductDetails(productCode);
+    }).catch(err => {
+        console.error("Error al escanear:", err);
+    });
 }
 
-function scanBarcode(barcodeImage) {
-    // Simulación: normalmente usaríamos una librería como 'jsQR' o un servicio de API de escaneo de códigos de barras
-    const barcodeValue = '123456';  // Este es el valor que obtendrías de la lectura del código de barras.
-
-    // Buscar el producto en Google Sheets
-    fetchProductData(barcodeValue);
-}
-
-function fetchProductData(barcode) {
-    const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSKHNIwPCopFbz6NDE-S2FM6U8NwtY696GXiqc4jv_ibp2eji-AHbXW_uIZJmGL9F5ErxCYqrZnoKgI/pub?output=csv';
-    
-    fetch(sheetUrl)
+// Función para obtener y mostrar productos del almacén seleccionado
+function showProductsForWarehouse(warehouse) {
+    fetch(csvUrl)
         .then(response => response.text())
         .then(data => {
             const rows = data.split("\n");
             const products = rows.map(row => row.split(","));
-            
-            // Aquí filtramos los productos para encontrar el que coincide con el código de barras
-            const product = products.find(p => p[0].trim() === barcode); // El código de barras está en la primera columna
+            const productList = document.getElementById("productList");
+            productList.innerHTML = '';
 
-            if (product) {
-                displayProductInfo(product);
-            } else {
-                alert('Producto no encontrado');
+            products.forEach(product => {
+                const almacén = product[6]?.trim().toLowerCase();
+                if (almacén === warehouse.toLowerCase() || almacén === `almacén ${warehouse.toLowerCase()}`) {
+                    const productElement = document.createElement("div");
+                    productElement.classList.add("product");
+                    productElement.innerHTML = `
+                        <strong>Nombre:</strong> ${product[3]} <br>
+                        <strong>Unidades:</strong> ${product[4]} <br>
+                        <strong>Descripción:</strong> ${product[5]} <br>
+                    `;
+                    productList.appendChild(productElement);
+                }
+            });
+        }).catch(error => console.error("Error al cargar los productos:", error));
+}
+
+// Función para buscar el producto por código de barras
+function fetchAndDisplayProductDetails(productCode) {
+    fetch(csvUrl)
+        .then(response => response.text())
+        .then(data => {
+            const rows = data.split("\n");
+            const products = rows.map(row => row.split(","));
+            const productList = document.getElementById("productList");
+
+            let foundProduct = false;
+            products.forEach(product => {
+                if (product[0].trim() === productCode) {
+                    foundProduct = true;
+                    const productElement = document.createElement("div");
+                    productElement.classList.add("product");
+                    productElement.innerHTML = `
+                        <strong>Nombre:</strong> ${product[3]} <br>
+                        <strong>Unidades:</strong> ${product[4]} <br>
+                        <strong>Descripción:</strong> ${product[5]} <br>
+                    `;
+                    productList.innerHTML = ''; // Limpiar la lista antes de mostrar el producto escaneado
+                    productList.appendChild(productElement);
+                }
+            });
+
+            if (!foundProduct) {
+                alert("Producto no encontrado.");
             }
-        })
-        .catch(error => console.error('Error al cargar los productos:', error));
+        }).catch(error => console.error("Error al cargar los productos:", error));
 }
 
-function displayProductInfo(product) {
-    document.getElementById('productName').textContent = `Nombre: ${product[3]}`;
-    document.getElementById('productUnits').textContent = `Unidades: ${product[4]}`;
-    document.getElementById('productDescription').textContent = `Descripción: ${product[5]}`;
-    document.getElementById('productLocation').textContent = `Ubicación: ${product[6]}`;
-}
+// Iniciar con el almacén A
+showProductsForWarehouse('A');
+
