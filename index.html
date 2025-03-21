@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Escaneo de Códigos de Barras</title>
     <link rel="stylesheet" href="styles.css">  <!-- Aquí enlazamos el CSS -->
-    <script src="https://unpkg.com/@ericblade/quagga2"></script>
+    <script src="https://unpkg.com/@zxing/library@0.18.5"></script> <!-- Enlace a la librería ZXing -->
 </head>
 <body>
     <header>
@@ -16,7 +16,7 @@
         <!-- Botón para activar la cámara -->
         <button id="startCameraButton">Activar cámara</button>
 
-        <!-- Área donde se mostrará el video de la cámara -->
+        <!-- Área para el escáner de código de barras -->
         <div id="scanner-container" style="width: 100%; height: 300px;"></div>
 
         <!-- Sección para mostrar los resultados del producto -->
@@ -33,5 +33,4 @@
     <script src="script.js"></script> <!-- Aquí enlazamos el JavaScript -->
 </body>
 </html>
-
 
