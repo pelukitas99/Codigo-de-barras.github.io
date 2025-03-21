@@ -3,34 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Escaneo de Códigos de Barras</title>
-    <link rel="stylesheet" href="styles.css">  <!-- Aquí enlazamos el CSS -->
-    <script src="https://unpkg.com/@zxing/library@0.18.5"></script> <!-- Enlace a la librería ZXing -->
+    <title>Tomar Foto</title>
 </head>
 <body>
     <header>
-        <h1>Escanear Producto</h1>
+        <h1>Tomar Foto</h1>
     </header>
 
     <main>
         <!-- Botón para activar la cámara -->
         <button id="startCameraButton">Activar cámara</button>
 
-        <!-- Área para el escáner de código de barras -->
-        <div id="scanner-container" style="width: 100%; height: 300px;"></div>
-
-        <!-- Sección para mostrar los resultados del producto -->
-        <div id="productInfo">
-            <h3>Información del producto:</h3>
-            <p><strong>Código:</strong> <span id="productCode"></span></p>
-            <p><strong>Nombre:</strong> <span id="productName"></span></p>
-            <p><strong>Unidades:</strong> <span id="productUnits"></span></p>
-            <p><strong>Descripción:</strong> <span id="productDescription"></span></p>
-            <p><strong>Almacén:</strong> <span id="productWarehouse"></span></p>
+        <!-- Área para mostrar la vista de la cámara -->
+        <div id="cameraContainer" style="width: 100%; height: 400px; display: none;">
+            <video id="video" autoplay playsinline></video>
         </div>
+
+        <!-- Botón para tomar la foto -->
+        <button id="takePhotoButton" style="display: none;">Tomar Foto</button>
+
+        <!-- Contenedor para mostrar la foto tomada -->
+        <canvas id="photoCanvas" style="display: none;"></canvas>
+        <img id="photo" style="display: none;" />
     </main>
 
-    <script src="script.js"></script> <!-- Aquí enlazamos el JavaScript -->
+    <script src="script.js"></script>
 </body>
 </html>
+
 
